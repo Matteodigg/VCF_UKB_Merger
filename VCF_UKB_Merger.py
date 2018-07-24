@@ -5,7 +5,7 @@ from itertools import chain
 from collections import defaultdict
 
 #----- MyLaptop
-# /home/matteo/git/VCF_UKB_Merger/VCF_UKB_Merger.py \
+# python3 /home/matteo/git/VCF_UKB_Merger/VCF_UKB_Merger.py \
 # -I /home/matteo/Scrivania/UKB-Results/UKB-22193-cleaned.tsv \
 # -VCF /home/matteo/Scrivania/UKB-Results/GWAS_Results/rs78378222_fetched.vcf \
 # -O /home/matteo/Scrivania/UKB-Results/GWAS_Results/UKB-22193-merged-genetic.tsv \
@@ -20,13 +20,23 @@ if __name__ == '__main__':
     parser.add_argument('-O','--out',help="Path to output file in tsv format.")
     parser.add_argument('-VCF','--VCFfile',help="Path to the vcf file")
     parser.add_argument('-HomPhen','--HomozygousPhentype',help="Path to the tsv file containing all the homozygous samples for the SNP rs78378222")
-    parser.add_argument('-Skip','--SkipID',help="Report in a file in the same path of the out fle the number of skipping ID (no genetic data in .sample file)")
+    parser.add_argument('-Skip','--SkipID',help="Report in a file in the same path of the out file the number of skipping ID (no genetic data in .sample file)")
 
     global opts
 
     print('\n\nBioinformatic to rule them all, Python to find them, Python to bring them all, and in the darkness bind them\n\n')
 
     opts = parser.parse_args()
+
+    Index_collection_41204 = []
+    Index_collection_41203 = []
+    Index_collection_41202 = []
+    start_41202 = []
+    stop_41202 = []
+    start_41203 = []
+    stop_41203 = []
+    start_41204 = []
+    stop_41204 = []
 
     out_file = open(opts.out,'w')
 
@@ -64,7 +74,7 @@ if __name__ == '__main__':
 
                     genot = genot.split(':')[0]
 
-                    GT = '.'
+                    GT = '-1'
                     
                     if genot == '0/0':
                         GT = '0'
@@ -79,7 +89,11 @@ if __name__ == '__main__':
 
     with open(opts.input) as UKB:
         for line in UKB:
+            
             line = line.rstrip().split('\t')
+
+            new_line = list(line)
+
             # Here I add the SNP ID to the UKB header
             if line[0].startswith('eid'):
                 header = line
@@ -87,22 +101,53 @@ if __name__ == '__main__':
                     header += [keys]
                 out_file.write('\t'.join(header)+'\n')
 
+                for elem in line:
+                    if '41202' in elem:
+                        Index_collection_41202 += [line.index(elem)] 
+                        if '41202-0.0' in elem:
+                            #Here I can identify the FIRST element having ID of 40006
+                            start_41202 = header.index(elem)
+                        stop_41202 = header.index(elem)+1
+                    
+
+                    if '41203' in elem:
+                        Index_collection_41203 += [line.index(elem)] 
+                        if '41203-0.0' in elem:
+                            #Here I can identify the FIRST element having ID of 40006
+                            start_41203 = header.index(elem)
+                        stop_41203 = header.index(elem)+1
+
+                    if '41204' in elem:
+                        Index_collection_41204 += [line.index(elem)] 
+                        if '41204-0.0' in elem:
+                            #Here I can identify the FIRST element having ID of 40006
+                            start_41204 = header.index(elem)
+                        stop_41204 = header.index(elem)+1
+
+                #print(start_41202,start_41203)
+
             else:
                 for keys in SNP_ID:
                     # Here I extract the genotype of the sample for each snp in the SNP_ID dict and then I merge them in a new line
-                    try:
+                    if line[0] in SNP_ID[keys]:
                         line += [SNP_ID[keys][line[0]]]
-                    except:
+                        #print([SNP_ID[keys]])
+                        #print(len(line))
+                    else:
                         Count_skipping += 1
-                        line += ['']
+                        line += ['.']
+                        #print(line[0],len(line))
+
                 out_file.write('\t'.join(line)+'\n')
+
                 if opts.HomozygousPhentype:
                     if count_header == 0:
                         phen_header = ['eid','Genotype']
-                        phen_file.write('\t'.join(phen_header+line[header.index('ICD_Code_0'):header.index('Cancer_Phenotype_16')+1])+'\n')
+                        #print(header.index('ICD_Code_0'))
+                        phen_file.write('\t'.join(phen_header+header[header.index('ICD_Code_0'):header.index('Cancer_Phenotype_16')+1] + header[start_41202:stop_41202+1] + header[start_41203:stop_41203+1]+header[start_41204:stop_41204+1])+'\n')
                         count_header = 1
                     elif line[header.index('rs78378222,17:7571752_T_G')] == '2':
-                        new_line = [line[0] + line[header.index('rs78378222,17:7571752_T_G')]] + line[header.index('ICD_Code_0'):header.index('Cancer_Phenotype_16')+1]
+                        new_line = [line[0] + '\t' + line[header.index('rs78378222,17:7571752_T_G')]] + line[header.index('ICD_Code_0'):header.index('Cancer_Phenotype_16')+1] + line[start_41202:stop_41202+1] + line[start_41203:stop_41203+1] + line[start_41204:stop_41204+1]
                         phen_file.write('\t'.join(new_line)+'\n')
 
 

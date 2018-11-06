@@ -20,7 +20,7 @@ if __name__ == '__main__':
     parser.add_argument('-O','--out',help="Path to output file in tsv format.")
     parser.add_argument('-VCF','--VCFfile',help="Path to the vcf file")
     parser.add_argument('-HomPhen','--HomozygousPhentype',help="Path to the tsv file containing all the homozygous samples for the SNP rs78378222")
-    parser.add_argument('-Skip','--SkipID',help="Report in a file in the same path of the out file the number of skipping ID (no genetic data in .sample file)")
+    #parser.add_argument('-Skip','--SkipID',help="Report in a file in the same path of the out file the number of skipping ID (no genetic data in .sample file)")
 
     global opts
 
@@ -134,8 +134,9 @@ if __name__ == '__main__':
                         #print([SNP_ID[keys]])
                         #print(len(line))
                     else:
+                        # If the genotype is missing, I set the value as -2 (I want all the values in the column to be an integer)
                         Count_skipping += 1
-                        line += ['.']
+                        line += ['-2']
                         #print(line[0],len(line))
 
                 out_file.write('\t'.join(line)+'\n')

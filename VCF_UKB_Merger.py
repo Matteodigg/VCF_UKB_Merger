@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser.add_argument('-I','--input',help="Path to the UK Biobank input file in tsv format.")
     parser.add_argument('-O','--out',help="Path to output file in tsv format.")
     parser.add_argument('-VCF','--VCFfile',help="Path to the vcf file")
-    parser.add_argument('-HomPhen','--HomozygousPhentype',help="Path to the tsv file containing all the homozygous samples for the SNP rs78378222")
+    parser.add_argument('-HomPhen','--HomozygousPhenotype',help="Path to the tsv file containing all the homozygous samples for the SNP rs78378222")
     #parser.add_argument('-Skip','--SkipID',help="Report in a file in the same path of the out file the number of skipping ID (no genetic data in .sample file)")
 
     global opts
